@@ -1,10 +1,11 @@
 package com.company.retrofit_rest_api;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
@@ -16,17 +17,19 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView textA, textB, textC, textD;
+    RecyclerView recyclerView;
+    RecyclerView.LayoutManager layoutManager;
+    List<ModelClass> data;
+    RecyclerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textA = findViewById(R.id.textViewA);
-        textB = findViewById(R.id.textViewB);
-        textC = findViewById(R.id.textViewC);
-        textD = findViewById(R.id.textViewD);
+        recyclerView = findViewById(R.id.recyclerView);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
 
         Retrofit retrofit = new Retrofit.Builder().baseUrl("https://jsonplaceholder.typicode.com/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -39,19 +42,9 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<List<ModelClass>>() {
             @Override
             public void onResponse(Call<List<ModelClass>> call, Response<List<ModelClass>> response) {
-                if (!response.isSuccessful()){
-                    textA.setText("error");
-                    textB.setText("error");
-                    textC.setText("error");
-                    textD.setText("error");
-                }
-
-                List<ModelClass> data = response.body();
-
-                textA.setText(""+data.get(0).getUserId());
-                textB.setText(""+data.get(0).getId());
-                textC.setText(""+data.get(0).getTitle());
-                textD.setText(""+data.get(0).getSubTitle());
+                data = response.body();
+                adapter = new RecyclerAdapter(data);
+                recyclerView.setAdapter(adapter);
             }
 
             @Override
